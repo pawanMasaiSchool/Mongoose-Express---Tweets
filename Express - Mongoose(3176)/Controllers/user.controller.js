@@ -1,4 +1,5 @@
-const User = require("../Models/user.model")
+const User = require("../Models/user.model");
+const { body, validationResult } = require('express-validator');
 
 const getAllUsers = async (req,res) => {
     const allUsers = await User.find();
@@ -19,7 +20,15 @@ const getUser = async (req,res) => {
     res.status(200).json(user)
 }
 
+const checkFileds = ()=>{
+    return [body('username').not().isString().isLength({min:3}).withMessage("Username should be of minimum 3 characters")]
+}
+
 const createUser = async (req,res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
     const [user] = await User.insertMany([{
         username:req.body.username,
         email:req.body.email
@@ -52,4 +61,4 @@ const modifyUser = async (req,res) => {
 }
 
 
-module.exports = {getAllUsers,createUser,deleteUser,modifyUser,getUser}
+module.exports = {getAllUsers,createUser,deleteUser,modifyUser,getUser,checkFileds}
